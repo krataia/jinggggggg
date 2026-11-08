@@ -51,8 +51,13 @@ const cicada = `⠀⠀⣀⣤⠤⠶⠶⠶⠶⠶⠶⢶⠶⠶⠦⣤⣄⣀⣀⠀⠀�
 	</p>
 
 	<div class="relative mt-9 flex flex-wrap items-center justify-center gap-x-7 gap-y-4">
-		<a class="cta relative overflow-hidden bg-cta px-8 py-3 text-[14px] font-semibold uppercase tracking-[0.14em] text-[#2b1d06] no-underline" href="#work">
-			View work
+		<a class="cta relative inline-flex items-center bg-cta px-9 py-3 text-[14px] font-semibold uppercase text-[#2b1d06] no-underline" href="#work" data-cta>
+			<!-- gold corner brackets that open outward on hover -->
+			<span class="cta-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+			<!-- a gold line that traces the border on hover -->
+			<svg class="cta-trace" aria-hidden="true"><rect x="1" y="1" pathLength="100" /></svg>
+			<span class="cta-clip" aria-hidden="true"><span class="cta-shine"></span></span>
+			<span class="cta-label relative" data-scramble>View work</span>
 		</a>
 		<a
 			class="text-[13px] font-medium uppercase tracking-[0.14em] text-muted no-underline transition-colors duration-200 hover:text-accent"
@@ -75,23 +80,155 @@ const cicada = `⠀⠀⣀⣤⠤⠶⠶⠶⠶⠶⠶⢶⠶⠶⠦⣤⣄⣀⣀⠀⠀�
 </section>
 
 <style>
+	/* View work: lifts with a warm glow, brackets open, arrow drops through, light sweeps across */
 	.cta {
-		transition: filter 0.2s ease;
+		--io: cubic-bezier(0.65, 0, 0.35, 1);
+		--mx: 0px;
+		--my: 0px;
+		transform: translate(var(--mx), var(--my));
+		box-shadow: 0 6px 18px rgb(232 189 6 / 0.18);
+		transition:
+			transform 0.35s var(--io),
+			box-shadow 0.35s ease,
+			filter 0.25s ease;
 	}
-	.cta::after {
-		content: '';
+	.cta:hover,
+	.cta:focus-visible {
+		transform: translate(var(--mx), calc(var(--my) - 2px));
+		filter: brightness(1.06);
+		box-shadow:
+			0 10px 28px rgb(232 189 6 / 0.35),
+			0 0 0 1px rgb(255 240 190 / 0.6) inset;
+	}
+	.cta:active {
+		transform: translate(var(--mx), var(--my)) scale(0.97);
+		transition-duration: 0.08s;
+	}
+	.cta-label {
+		letter-spacing: 0.14em;
+		transition: letter-spacing 0.4s var(--io);
+	}
+	.cta:hover .cta-label,
+	.cta:focus-visible .cta-label {
+		letter-spacing: 0.2em;
+	}
+	.cta-frame {
 		position: absolute;
-		inset: 0 0 auto;
-		height: 3px;
-		background: #fff3b0;
-		transform: translateX(-101%);
-		transition: transform 0.3s ease-in-out;
+		inset: -3px;
+		opacity: 0;
+		pointer-events: none;
+		transition:
+			inset 0.45s var(--io),
+			opacity 0.3s ease;
 	}
-	.cta:hover {
-		filter: brightness(1.08);
+	.cta-frame i {
+		position: absolute;
+		width: 10px;
+		height: 10px;
+		border: 0 solid var(--color-accent);
 	}
-	.cta:hover::after {
-		transform: translateX(0);
+	.cta-frame i:nth-child(1) {
+		top: 0;
+		left: 0;
+		border-width: 1.5px 0 0 1.5px;
+	}
+	.cta-frame i:nth-child(2) {
+		top: 0;
+		right: 0;
+		border-width: 1.5px 1.5px 0 0;
+	}
+	.cta-frame i:nth-child(3) {
+		bottom: 0;
+		left: 0;
+		border-width: 0 0 1.5px 1.5px;
+	}
+	.cta-frame i:nth-child(4) {
+		bottom: 0;
+		right: 0;
+		border-width: 0 1.5px 1.5px 0;
+	}
+	.cta:hover .cta-frame,
+	.cta:focus-visible .cta-frame {
+		inset: -9px;
+		opacity: 1;
+	}
+	.cta-clip {
+		position: absolute;
+		inset: 0;
+		overflow: hidden;
+		pointer-events: none;
+	}
+	.cta-shine {
+		position: absolute;
+		inset: 0 auto 0 -60%;
+		width: 45%;
+		background: linear-gradient(100deg, transparent, rgb(255 255 255 / 0.65), transparent);
+		transform: skewX(-20deg);
+		animation: cta-idle 4.5s ease-in-out 2.5s infinite;
+	}
+	.cta:hover .cta-shine,
+	.cta:focus-visible .cta-shine {
+		animation: cta-sweep 0.75s ease-out;
+	}
+	@keyframes cta-idle {
+		0%,
+		70% {
+			left: -60%;
+		}
+		100% {
+			left: 130%;
+		}
+	}
+	@keyframes cta-sweep {
+		from {
+			left: -60%;
+		}
+		to {
+			left: 130%;
+		}
+	}
+	.cta-trace {
+		position: absolute;
+		inset: -5px;
+		width: calc(100% + 10px);
+		height: calc(100% + 10px);
+		overflow: visible;
+		pointer-events: none;
+	}
+	.cta-trace rect {
+		width: calc(100% - 2px);
+		height: calc(100% - 2px);
+		fill: none;
+		stroke: var(--color-accent);
+		stroke-width: 1.2;
+		stroke-dasharray: 100;
+		stroke-dashoffset: 100;
+		filter: drop-shadow(0 0 4px rgb(245 194 122 / 0.8));
+		transition: stroke-dashoffset 0.7s var(--io);
+	}
+	.cta:hover .cta-trace rect,
+	.cta:focus-visible .cta-trace rect {
+		stroke-dashoffset: 0;
+	}
+	.cta-label {
+		display: inline-block;
+		text-align: center;
+		white-space: nowrap;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.cta,
+		.cta-label,
+		.cta-frame,
+		.cta-trace rect {
+			transition-duration: 0.01s;
+		}
+		.cta-shine,
+		.cta:hover .cta-shine {
+			animation: none;
+		}
+		.cta:hover {
+			transform: none;
+		}
 	}
 	.cicada {
 		--axis: 48.5%; /* column of the body / tail in the art */
@@ -133,3 +270,46 @@ const cicada = `⠀⠀⣀⣤⠤⠶⠶⠶⠶⠶⠶⢶⠶⠶⠦⣤⣄⣀⣀⠀⠀�
 		}
 	}
 </style>
+
+<script>
+	// View work: text decrypts on hover; the button is gently pulled toward the pointer
+	const cta = document.querySelector<HTMLElement>('[data-cta]');
+	const label = cta?.querySelector<HTMLElement>('[data-scramble]');
+	const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+	if (cta && label && !still) {
+		const text = label.textContent?.trim() ?? '';
+		const glyphs = '01<>/\\#$%&*+=?!ABCDEFGHJKLMNPQRSTUVWXYZ';
+		label.style.width = `${label.offsetWidth}px`; // keep the button from jittering while letters change
+		let raf = 0;
+
+		const scramble = () => {
+			cancelAnimationFrame(raf);
+			const start = performance.now();
+			const dur = 650;
+			const tick = (now: number) => {
+				const p = Math.min((now - start) / dur, 1);
+				const revealed = Math.floor(p * text.length);
+				label.textContent = [...text]
+					.map((ch, i) => (ch === ' ' || i < revealed ? ch : glyphs[Math.floor(Math.random() * glyphs.length)]))
+					.join('');
+				if (p < 1) raf = requestAnimationFrame(tick);
+			};
+			raf = requestAnimationFrame(tick);
+		};
+
+		cta.addEventListener('pointerenter', scramble);
+		cta.addEventListener('focus', scramble);
+		cta.addEventListener('pointermove', (e) => {
+			const r = cta.getBoundingClientRect();
+			const x = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
+			const y = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
+			cta.style.setProperty('--mx', `${(x * 6).toFixed(1)}px`);
+			cta.style.setProperty('--my', `${(y * 4).toFixed(1)}px`);
+		});
+		cta.addEventListener('pointerleave', () => {
+			cta.style.setProperty('--mx', '0px');
+			cta.style.setProperty('--my', '0px');
+		});
+	}
+</script>

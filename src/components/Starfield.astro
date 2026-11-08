@@ -1,8 +1,8 @@
 <div class="sky-root pointer-events-none fixed inset-0 -z-20 overflow-hidden" aria-hidden="true">
-	<!-- slow-moving nebula haze -->
-	<span class="neb neb-a"></span>
-	<span class="neb neb-b"></span>
-	<span class="neb neb-c"></span>
+	<!-- nebula + milky-way glow are painted once at low resolution; CSS only moves/fades the layers -->
+	<canvas class="neb-layer neb-1" data-neb="1"></canvas>
+	<canvas class="neb-layer neb-2" data-neb="2"></canvas>
+	<canvas class="galaxy-layer absolute inset-0 h-full w-full" data-galaxy></canvas>
 	<canvas class="absolute inset-0 h-full w-full" data-stars></canvas>
 	<!-- thin frame rails at the edges, desktop only -->
 	<span class="rail left-[64px]"></span>
@@ -13,51 +13,38 @@
 	.sky-root {
 		background:
 			radial-gradient(80% 60% at 70% 75%, rgb(92 100 140 / 0.35), transparent 70%),
-			linear-gradient(to bottom, #20233a 0%, #2a2e4a 45%, #3b4062 80%, #4a5073 100%);
+			linear-gradient(to bottom, #1c1f36 0%, #272b48 45%, #383d60 80%, #474d72 100%);
 	}
-	.neb {
+	.neb-layer {
 		position: absolute;
-		border-radius: 50%;
-		filter: blur(60px);
+		inset: -12%;
+		width: 124%;
+		height: 124%;
 		will-change: transform;
 	}
-	.neb-a {
-		left: -10%;
-		top: 10%;
-		width: 70vw;
-		height: 50vh;
-		background: radial-gradient(closest-side, rgb(120 130 175 / 0.22), transparent);
-		animation: neb-a 70s ease-in-out infinite alternate;
+	.neb-1 {
+		animation: drift-1 80s ease-in-out infinite alternate;
 	}
-	.neb-b {
-		right: -15%;
-		top: 35%;
-		width: 80vw;
-		height: 60vh;
-		background: radial-gradient(closest-side, rgb(150 155 200 / 0.18), transparent);
-		animation: neb-b 90s ease-in-out infinite alternate;
+	.neb-2 {
+		opacity: 0.85;
+		animation: drift-2 110s ease-in-out infinite alternate;
 	}
-	.neb-c {
-		left: 25%;
-		bottom: -20%;
-		width: 60vw;
-		height: 45vh;
-		background: radial-gradient(closest-side, rgb(110 100 160 / 0.2), transparent);
-		animation: neb-c 110s ease-in-out infinite alternate;
-	}
-	@keyframes neb-a {
+	@keyframes drift-1 {
 		to {
-			transform: translate(8vw, 4vh) scale(1.15) rotate(8deg);
+			transform: translate(5%, 3%) scale(1.08) rotate(2deg);
 		}
 	}
-	@keyframes neb-b {
+	@keyframes drift-2 {
 		to {
-			transform: translate(-10vw, -6vh) scale(1.2) rotate(-10deg);
+			transform: translate(-6%, -4%) scale(1.12) rotate(-3deg);
 		}
 	}
-	@keyframes neb-c {
+	.galaxy-layer {
+		animation: galaxy-breathe 14s ease-in-out infinite alternate;
+	}
+	@keyframes galaxy-breathe {
 		to {
-			transform: translate(6vw, -8vh) scale(1.1);
+			opacity: 0.65;
 		}
 	}
 	.rail {
@@ -90,30 +77,79 @@
 		}
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.neb {
+		.neb-layer,
+		.galaxy-layer {
 			animation: none;
 		}
 	}
 </style>
 
 <script>
-	// Night sky: depth-layered twinkling stars + a drifting diagonal star-dust band, with soft pointer parallax.
+	// Night sky: depth-layered twinkling stars with flares, faint constellations, a drifting star-dust band,
+	// rising light motes, shooting stars, pointer + scroll parallax.
 	const canvas = document.querySelector<HTMLCanvasElement>('[data-stars]');
 	const ctx = canvas?.getContext('2d');
+	const galaxy = document.querySelector<HTMLCanvasElement>('[data-galaxy]');
+	const nebs = [...document.querySelectorAll<HTMLCanvasElement>('[data-neb]')];
+
+	// paint soft colour clouds at 1/6 resolution; the browser's upscale does the blurring for free
+	const LOW = 6;
+	type Blob = [number, number, number, number, string]; // cx, cy (0..1), rx, ry (0..1 of size), rgba
+	const bake = (c: HTMLCanvasElement, blobs: Blob[]) => {
+		const cw = Math.max(32, Math.round(c.clientWidth / LOW));
+		const ch = Math.max(32, Math.round(c.clientHeight / LOW));
+		c.width = cw;
+		c.height = ch;
+		const g = c.getContext('2d')!;
+		g.clearRect(0, 0, cw, ch);
+		g.globalCompositeOperation = 'lighter'; // overlapping clouds glow instead of muddying
+		for (const [x, y, rx, ry, col] of blobs) {
+			g.save();
+			g.translate(x * cw, y * ch);
+			g.scale(1, ry / rx);
+			const r = rx * cw;
+			const grad = g.createRadialGradient(0, 0, 0, 0, 0, r);
+			grad.addColorStop(0, col);
+			grad.addColorStop(1, 'rgba(0,0,0,0)');
+			g.fillStyle = grad;
+			g.beginPath();
+			g.arc(0, 0, r, 0, Math.PI * 2);
+			g.fill();
+			g.restore();
+		}
+	};
+	const bakeNebulae = () => {
+		if (nebs[0])
+			bake(nebs[0], [
+				[0.22, 0.3, 0.38, 0.26, 'rgba(120,130,175,0.20)'],
+				[0.28, 0.12, 0.3, 0.28, 'rgba(124,92,214,0.26)'],
+				[0.55, 0.85, 0.32, 0.22, 'rgba(110,100,160,0.20)'],
+			]);
+		if (nebs[1])
+			bake(nebs[1], [
+				[0.78, 0.55, 0.42, 0.3, 'rgba(150,155,200,0.16)'],
+				[0.8, 0.35, 0.26, 0.26, 'rgba(64,170,196,0.18)'],
+				[0.52, 0.9, 0.28, 0.2, 'rgba(200,110,160,0.17)'],
+			]);
+	};
 
 	if (canvas && ctx) {
 		const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 		type P = { x: number; y: number; r: number; a: number; tw: number; ph: number; z: number; v: number };
 		let stars: P[] = [];
 		let dust: P[] = [];
+		let motes: P[] = [];
+		let links: [P, P][] = [];
 		let w = 0;
 		let h = 0;
 		let band = { ax: 0, ay: 0, dx: 0, dy: 0, len: 0, nx: 0, ny: 0 };
 		const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+		let scroll = 0;
 		let shoot: { x: number; y: number; vx: number; vy: number; life: number } | null = null;
-		let nextShoot = performance.now() + 5000;
+		let nextShoot = performance.now() + 3500;
 
-		const gauss = () => (Math.random() + Math.random() + Math.random() + Math.random() - 2) / 2; // ~N(0, .3)
+		const gauss = () => (Math.random() + Math.random() + Math.random() + Math.random() - 2) / 2;
+		const wrap = (v: number, m: number) => ((v % m) + m) % m;
 
 		const build = () => {
 			const dpr = Math.min(devicePixelRatio || 1, 2);
@@ -123,45 +159,130 @@
 			canvas.height = h * dpr;
 			ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-			const n = Math.round((w * h) / 4200);
+			const n = Math.round((w * h) / 3800);
 			stars = Array.from({ length: n }, () => {
-				const z = Math.random(); // depth: 0 far .. 1 near
-				const bright = Math.random() < 0.05;
+				const z = Math.random();
+				const bright = Math.random() < 0.045;
 				return {
 					x: Math.random() * w,
 					y: Math.random() * h,
-					r: bright ? 1.1 + Math.random() * 0.8 : 0.3 + z * 0.7,
-					a: bright ? 0.85 : 0.2 + z * 0.5,
+					r: bright ? 1.2 + Math.random() * 1 : 0.3 + z * 0.7,
+					a: bright ? 0.95 : 0.2 + z * 0.5,
 					tw: 0.3 + Math.random() * 1.4,
 					ph: Math.random() * Math.PI * 2,
 					z,
-					v: 0,
+					v: bright ? 1 : 0, // v=1 marks a flare star
 				};
 			});
 
-			// diagonal band from the right edge down toward the lower middle (like a strip of the Milky Way)
+			// faint constellations: link each flare star to its nearest flare neighbour (if close enough)
+			const flares = stars.filter((s) => s.v === 1);
+			links = [];
+			for (const s of flares) {
+				let best: P | null = null;
+				let bd = Infinity;
+				for (const o of flares) {
+					if (o === s) continue;
+					const d = Math.hypot(o.x - s.x, o.y - s.y);
+					if (d < bd) {
+						bd = d;
+						best = o;
+					}
+				}
+				if (best && bd < Math.min(w, h) * 0.32 && !links.some(([a, b]) => a === best && b === s)) links.push([s, best]);
+			}
+
 			const ax = w * 1.02;
 			const ay = h * 0.52;
 			const bx = w * 0.5;
 			const by = h * 1.05;
 			const len = Math.hypot(bx - ax, by - ay);
 			band = { ax, ay, dx: (bx - ax) / len, dy: (by - ay) / len, len, nx: -(by - ay) / len, ny: (bx - ax) / len };
-			const m = Math.round(Math.min(1400, (w * h) / 1500));
+			if (galaxy) {
+				const gw = Math.round(w / LOW);
+				const gh = Math.round(h / LOW);
+				galaxy.width = gw;
+				galaxy.height = gh;
+				const g = galaxy.getContext('2d')!;
+				g.globalCompositeOperation = 'lighter';
+				// a long soft ellipse laid along the dust band, warmer near the bright end
+				const mx = (ax + bx) / 2 / LOW;
+				const my = (ay + by) / 2 / LOW;
+				for (const [k, col, thick] of [
+					[1.0, 'rgba(210,205,255,0.20)', 0.16],
+					[0.55, 'rgba(255,225,190,0.10)', 0.1],
+				] as [number, string, number][]) {
+					g.save();
+					g.translate(mx + ((ax - bx) / LOW) * (1 - k) * 0.4, my + ((ay - by) / LOW) * (1 - k) * 0.4);
+					g.rotate(Math.atan2(by - ay, bx - ax));
+					const rx = (len / LOW) * 0.62 * k;
+					g.scale(1, (Math.min(w, h) * thick) / LOW / rx);
+					const grad = g.createRadialGradient(0, 0, 0, 0, 0, rx);
+					grad.addColorStop(0, col);
+					grad.addColorStop(1, 'rgba(0,0,0,0)');
+					g.fillStyle = grad;
+					g.beginPath();
+					g.arc(0, 0, rx, 0, Math.PI * 2);
+					g.fill();
+					g.restore();
+				}
+			}
+			const m = Math.round(Math.min(1600, (w * h) / 1300));
 			dust = Array.from({ length: m }, () => {
-				const t = Math.pow(Math.random(), 1.6); // denser near the right edge
+				const t = Math.pow(Math.random(), 1.6);
 				const spread = (70 - t * 40) * Math.max(0.6, w / 1600);
-				const off = gauss() * spread * 2.2;
 				return {
-					x: t * len, // position along the band (band coords)
-					y: off, // offset across it
+					x: t * len,
+					y: gauss() * spread * 2.2,
 					r: Math.random() < 0.06 ? 0.9 + Math.random() * 0.5 : 0.25 + Math.random() * 0.55,
-					a: (0.25 + Math.random() * 0.55) * (1 - t * 0.6),
+					a: (0.25 + Math.random() * 0.6) * (1 - t * 0.6),
 					tw: 0.5 + Math.random() * 2,
 					ph: Math.random() * Math.PI * 2,
 					z: 0.6 + Math.random() * 0.4,
-					v: 3 + Math.random() * 6, // px/s drift along the band
+					v: 3 + Math.random() * 6,
 				};
 			});
+
+			// warm bokeh motes rising slowly through the lower half
+			motes = Array.from({ length: Math.round(w / 60) }, () => ({
+				x: Math.random() * w,
+				y: h * 0.35 + Math.random() * h * 0.7,
+				r: 1.2 + Math.random() * 2.8,
+				a: 0.15 + Math.random() * 0.35,
+				tw: 0.2 + Math.random() * 0.6,
+				ph: Math.random() * Math.PI * 2,
+				z: Math.random(),
+				v: 6 + Math.random() * 14,
+			}));
+		};
+
+		const sprite = (inner: string, outer: string) => {
+			const c = document.createElement('canvas');
+			c.width = c.height = 64;
+			const g = c.getContext('2d')!;
+			const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+			grad.addColorStop(0, inner);
+			grad.addColorStop(1, outer);
+			g.fillStyle = grad;
+			g.fillRect(0, 0, 64, 64);
+			return c;
+		};
+		const GLOW = sprite('rgba(255,255,255,0.5)', 'rgba(180,190,255,0)');
+		const MOTE = sprite('rgba(255,214,150,0.9)', 'rgba(255,214,150,0)');
+
+		const flare = (x: number, y: number, r: number, a: number, pulse: number) => {
+			ctx.globalAlpha = a;
+			ctx.drawImage(GLOW, x - r * 7, y - r * 7, r * 14, r * 14);
+			// 4-point diffraction spikes
+			const L = r * (7 + 5 * pulse);
+			ctx.fillStyle = '#fff';
+			ctx.globalAlpha = 0.55 * a;
+			ctx.fillRect(x - L, y - 0.35, L * 2, 0.7);
+			ctx.fillRect(x - 0.35, y - L, 0.7, L * 2);
+			ctx.globalAlpha = a;
+			ctx.beginPath();
+			ctx.arc(x, y, r, 0, Math.PI * 2);
+			ctx.fill();
 		};
 
 		let last = performance.now();
@@ -169,31 +290,49 @@
 			const dt = Math.min((now - last) / 1000, 0.05);
 			last = now;
 			const t = now / 1000;
-			// ease pointer parallax so it glides instead of snapping
 			mouse.x += (mouse.tx - mouse.x) * 0.04;
 			mouse.y += (mouse.ty - mouse.y) * 0.04;
+			const sy = scroll;
 
 			ctx.clearRect(0, 0, w, h);
-			ctx.fillStyle = '#fff';
+			const pos = (s: P, px: number, py: number, sc: number) => ({
+				x: s.x - mouse.x * s.z * px,
+				y: wrap(s.y - mouse.y * s.z * py - sy * (0.02 + s.z * sc), h),
+			});
 
+			// constellation lines, slowly breathing
+			ctx.strokeStyle = '#f5d9a8';
+			ctx.lineWidth = 0.6;
+			links.forEach(([a, b], i) => {
+				const pa = pos(a, 14, 10, 0.06);
+				const pb = pos(b, 14, 10, 0.06);
+				if (Math.abs(pa.y - pb.y) > h / 2) return; // skip lines torn by the scroll wrap
+				ctx.globalAlpha = reduce ? 0.12 : 0.06 + 0.1 * (0.5 + 0.5 * Math.sin(t * 0.35 + i));
+				ctx.beginPath();
+				ctx.moveTo(pa.x, pa.y);
+				ctx.lineTo(pb.x, pb.y);
+				ctx.stroke();
+			});
+
+			ctx.fillStyle = '#fff';
 			for (const s of stars) {
 				const tw = reduce ? 1 : 0.6 + 0.4 * Math.sin(t * s.tw + s.ph);
-				const x = s.x - mouse.x * s.z * 14;
-				const y = s.y - mouse.y * s.z * 10;
+				const p = pos(s, 14, 10, 0.06);
+				if (s.v === 1) {
+					flare(p.x, p.y, s.r, s.a * tw, reduce ? 0.5 : 0.5 + 0.5 * Math.sin(t * 0.8 + s.ph));
+					ctx.fillStyle = '#fff';
+					continue;
+				}
 				ctx.globalAlpha = s.a * tw;
-				if (s.r < 0.8) {
-					ctx.fillRect(x, y, s.r * 1.6, s.r * 1.6);
-				} else {
+				if (s.r < 0.8) ctx.fillRect(p.x, p.y, s.r * 1.6, s.r * 1.6);
+				else {
 					ctx.beginPath();
-					ctx.arc(x, y, s.r, 0, Math.PI * 2);
-					ctx.fill();
-					ctx.globalAlpha = s.a * tw * 0.15;
-					ctx.beginPath();
-					ctx.arc(x, y, s.r * 4, 0, Math.PI * 2);
+					ctx.arc(p.x, p.y, s.r, 0, Math.PI * 2);
 					ctx.fill();
 				}
 			}
 
+			const bandShift = -sy * 0.05;
 			for (const d of dust) {
 				if (!reduce) {
 					d.x += d.v * dt;
@@ -201,40 +340,59 @@
 				}
 				const tw = reduce ? 1 : 0.55 + 0.45 * Math.sin(t * d.tw + d.ph);
 				const x = band.ax + band.dx * d.x + band.nx * d.y - mouse.x * d.z * 20;
-				const y = band.ay + band.dy * d.x + band.ny * d.y - mouse.y * d.z * 14;
+				const y = band.ay + band.dy * d.x + band.ny * d.y - mouse.y * d.z * 14 + bandShift;
 				if (x < -4 || x > w + 4 || y < -4 || y > h + 4) continue;
 				ctx.globalAlpha = d.a * tw;
 				ctx.fillRect(x, y, d.r * 1.7, d.r * 1.7);
 			}
 
+			for (const m of motes) {
+				if (!reduce) {
+					m.y -= m.v * dt;
+					m.x += Math.sin(t * m.tw + m.ph) * 0.15;
+					if (m.y < h * 0.25) {
+						m.y = h + 10;
+						m.x = Math.random() * w;
+					}
+				}
+				// fade in from the bottom, out toward the middle
+				const life = Math.min(1, (h + 10 - m.y) / (h * 0.15)) * Math.min(1, (m.y - h * 0.25) / (h * 0.2));
+				ctx.globalAlpha = m.a * Math.max(0, life);
+				ctx.drawImage(MOTE, m.x - mouse.x * 26 - m.r * 3, m.y - mouse.y * 18 - m.r * 3, m.r * 6, m.r * 6);
+			}
+
 			if (!reduce) {
 				if (!shoot && now > nextShoot) {
-					shoot = { x: w * (0.3 + Math.random() * 0.6), y: h * Math.random() * 0.3, vx: -520, vy: 240, life: 1 };
+					const dir = Math.random() < 0.5 ? -1 : 1;
+					shoot = { x: w * (dir < 0 ? 0.5 + Math.random() * 0.5 : Math.random() * 0.5), y: h * Math.random() * 0.35, vx: 560 * dir, vy: 230, life: 1 };
 				}
 				if (shoot) {
-					const tx = shoot.x - shoot.vx * 0.12;
-					const ty = shoot.y - shoot.vy * 0.12;
+					const tx = shoot.x - shoot.vx * 0.16;
+					const ty = shoot.y - shoot.vy * 0.16;
 					const g = ctx.createLinearGradient(shoot.x, shoot.y, tx, ty);
-					g.addColorStop(0, `rgba(255,255,255,${0.85 * shoot.life})`);
-					g.addColorStop(1, 'rgba(255,255,255,0)');
+					g.addColorStop(0, `rgba(255,255,255,${0.9 * shoot.life})`);
+					g.addColorStop(0.3, `rgba(200,215,255,${0.4 * shoot.life})`);
+					g.addColorStop(1, 'rgba(200,215,255,0)');
 					ctx.globalAlpha = 1;
 					ctx.strokeStyle = g;
-					ctx.lineWidth = 1.1;
+					ctx.lineWidth = 1.4;
+					ctx.lineCap = 'round';
 					ctx.beginPath();
 					ctx.moveTo(shoot.x, shoot.y);
 					ctx.lineTo(tx, ty);
 					ctx.stroke();
 					shoot.x += shoot.vx * dt;
 					shoot.y += shoot.vy * dt;
-					shoot.life -= dt * 1.1;
+					shoot.life -= dt * 0.9;
 					if (shoot.life <= 0) {
 						shoot = null;
-						nextShoot = now + 8000 + Math.random() * 10000;
+						nextShoot = now + 4000 + Math.random() * 7000;
 					}
 				}
 				requestAnimationFrame(frame);
 			}
 			ctx.globalAlpha = 1;
+			for (const n of nebs) n.style.translate = `0 ${-sy * 0.03}px`;
 		};
 
 		addEventListener(
@@ -245,7 +403,11 @@
 			},
 			{ passive: true },
 		);
+		addEventListener('scroll', () => (scroll = scrollY), { passive: true });
 		addEventListener('resize', build);
+		scroll = scrollY;
+		bakeNebulae();
+		addEventListener('resize', bakeNebulae);
 		build();
 		requestAnimationFrame(frame);
 	}

@@ -7,6 +7,7 @@ import Project from '../components/Project.astro';
 import Footer from '../components/Footer.astro';
 import MusicBar from '../components/MusicBar.astro';
 import Starfield from '../components/Starfield.astro';
+import Intro from '../components/Intro.astro';
 import Layout from '../layouts/Layout.astro';
 import { about, manifesto, projects, site } from '../data/portfolio';
 
@@ -19,6 +20,7 @@ const heroBg = ['jpg', 'webp', 'png']
 ---
 
 <Layout>
+	<Intro />
 	<Starfield />
 	{
 		heroBg && (
