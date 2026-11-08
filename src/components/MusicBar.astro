@@ -1,0 +1,362 @@
+---
+const videoId = '1Zzrt4tFWJ8';
+const track = { artist: 'คาราบาว', title: 'ล้างบาง' };
+---
+
+<div
+	class="pointer-events-none fixed inset-x-0 bottom-[max(16px,env(safe-area-inset-bottom))] z-40 flex justify-center px-4"
+	data-music
+	data-video={videoId}
+>
+	<div class="glass pointer-events-auto relative flex w-full items-center gap-1 overflow-hidden rounded-full">
+		<!-- art + text: tapping it expands the compact pill (like Apple Music's mini player) -->
+		<button type="button" class="main flex min-w-0 flex-1 items-center gap-3 text-left" aria-label="Expand player" data-expand disabled>
+			<img
+				class="art shrink-0 object-cover"
+				src={`https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`}
+				alt=""
+				width="44"
+				height="44"
+				loading="lazy"
+				decoding="async"
+			/>
+			<span class="min-w-0 flex-1">
+				<span class="flex items-center gap-2">
+					<span class="min-w-0 truncate text-[15px] font-semibold leading-5 tracking-[-0.01em] text-strong">{track.title}</span>
+					<!-- equalizer: only animates while playing -->
+					<span class="flex h-3 shrink-0 items-end gap-[2px]" aria-hidden="true" data-eq>
+						<span class="w-[2.5px] rounded-full bg-accent"></span>
+						<span class="w-[2.5px] rounded-full bg-accent"></span>
+						<span class="w-[2.5px] rounded-full bg-accent"></span>
+					</span>
+				</span>
+				<span class="meta grid">
+					<span class="min-h-0 overflow-hidden">
+						<span class="block truncate text-[12px] leading-4 text-muted">
+							{track.artist}<span class="sr-only" data-state></span>
+						</span>
+						<span class="mt-1.5 flex items-center gap-2 text-[11px] leading-none text-dimtext tabular-nums">
+							<span class="w-8" data-elapsed>0:00</span>
+							<span class="relative h-[3px] flex-1 overflow-hidden rounded-full bg-white/15">
+								<span class="absolute inset-y-0 left-0 w-full origin-left scale-x-0 rounded-full bg-accent" data-progress></span>
+							</span>
+							<span class="w-8 text-right" data-duration>--:--</span>
+						</span>
+					</span>
+				</span>
+			</span>
+		</button>
+
+		<button
+			type="button"
+			class="icon-btn press"
+			aria-label={`Play ${track.artist} — ${track.title}`}
+			data-toggle
+		>
+			<svg class="icon-play size-[22px] translate-x-px" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+				<path d="M7 4.8v14.4a1 1 0 0 0 1.5.86l11.6-7.2a1 1 0 0 0 0-1.72L8.5 3.94A1 1 0 0 0 7 4.8Z" />
+			</svg>
+			<svg class="icon-pause hidden size-[22px]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+				<rect x="6" y="4.5" width="4" height="15" rx="1.2" />
+				<rect x="14" y="4.5" width="4" height="15" rx="1.2" />
+			</svg>
+		</button>
+
+		<button type="button" class="icon-btn press fold" aria-label="Minimize player" data-minimize>
+			<svg class="size-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7" />
+			</svg>
+		</button>
+
+		<!-- hairline progress, only visible on the compact pill -->
+		<span class="mini-progress pointer-events-none absolute inset-x-7 bottom-[3px] h-[2px] rounded-full" aria-hidden="true"></span>
+	</div>
+
+	<!-- the player itself stays off-screen; the bar is the UI -->
+	<div class="absolute -left-[9999px] top-0 h-px w-px overflow-hidden" aria-hidden="true">
+		<div data-player></div>
+	</div>
+</div>
+
+<style>
+	[data-music] {
+		--ease: cubic-bezier(0.32, 0.72, 0, 1);
+		font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+	}
+	/* translucent glass material: blur + saturation, bright top edge, soft depth */
+	.glass {
+		/* backwards fill: no lingering transform, which would break backdrop-filter */
+		animation: materialize 500ms var(--ease) backwards;
+		max-width: 560px;
+		padding: 8px 8px 8px 10px;
+		background: rgba(18, 20, 36, 0.72);
+		backdrop-filter: blur(30px) saturate(180%);
+		box-shadow:
+			inset 0 1px 0 rgba(255, 255, 255, 0.16),
+			inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+			0 12px 40px rgba(0, 0, 0, 0.5);
+		transition:
+			max-width 480ms var(--ease),
+			padding 480ms var(--ease);
+	}
+	.art {
+		width: 44px;
+		height: 44px;
+		border-radius: 10px;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+		transition:
+			width 480ms var(--ease),
+			height 480ms var(--ease),
+			border-radius 480ms var(--ease);
+	}
+	.main {
+		cursor: default;
+	}
+	/* artist + time row folds away smoothly (0fr <-> 1fr) */
+	.meta {
+		grid-template-rows: 1fr;
+		opacity: 1;
+		transition:
+			grid-template-rows 480ms var(--ease),
+			opacity 240ms ease;
+	}
+	.icon-btn {
+		transition: width 480ms var(--ease), height 480ms var(--ease);
+		display: grid;
+		place-items: center;
+		flex-shrink: 0;
+		width: 40px;
+		height: 40px;
+		border-radius: 9999px;
+		color: var(--color-strong);
+	}
+	.icon-btn:hover {
+		background: rgba(255, 255, 255, 0.1);
+	}
+	.fold {
+		transition:
+			opacity 200ms ease,
+			width 480ms var(--ease);
+	}
+	.mini-progress {
+		opacity: 0;
+		background: linear-gradient(to right, var(--color-accent) calc(var(--p, 0) * 100%), rgba(255, 255, 255, 0.14) 0);
+		transition: opacity 240ms ease;
+	}
+
+	/* compact pill */
+	[data-music].is-compact .glass {
+		max-width: 260px;
+		padding: 6px 6px 6px 12px;
+	}
+	[data-music].is-compact .art {
+		width: 32px;
+		height: 32px;
+		border-radius: 7px;
+	}
+	[data-music].is-compact .main {
+		cursor: pointer;
+	}
+	[data-music].is-compact .icon-btn {
+		width: 36px;
+		height: 36px;
+	}
+	[data-music].is-compact .meta {
+		grid-template-rows: 0fr;
+		opacity: 0;
+	}
+	[data-music].is-compact .fold {
+		width: 0;
+		opacity: 0;
+		pointer-events: none;
+		visibility: hidden;
+		transition:
+			opacity 150ms ease,
+			width 480ms var(--ease),
+			visibility 0s 480ms;
+	}
+	[data-music].is-compact .mini-progress {
+		opacity: 1;
+	}
+
+	/* feedback on press-down, not release */
+	.press {
+		transition:
+			transform 160ms cubic-bezier(0.3, 0.7, 0.4, 1),
+			background-color 160ms ease;
+	}
+	.press:active {
+		transform: scale(0.88);
+		transition-duration: 80ms;
+	}
+	[data-music].is-playing .icon-play {
+		display: none;
+	}
+	[data-music].is-playing .icon-pause {
+		display: block;
+	}
+	[data-music].is-loading [data-toggle] {
+		opacity: 0.5;
+	}
+	[data-eq] > span {
+		height: 3px;
+		transition: height 200ms ease;
+	}
+	[data-music].is-playing [data-eq] > span {
+		animation: eq 0.9s ease-in-out infinite alternate;
+	}
+	[data-music].is-playing [data-eq] > span:nth-child(2) {
+		animation-delay: -0.3s;
+	}
+	[data-music].is-playing [data-eq] > span:nth-child(3) {
+		animation-delay: -0.6s;
+	}
+	@keyframes eq {
+		from {
+			height: 3px;
+		}
+		to {
+			height: 12px;
+		}
+	}
+	@keyframes materialize {
+		from {
+			opacity: 0;
+			transform: translateY(12px) scale(0.96);
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.glass,
+		.art,
+		.meta,
+		.fold {
+			animation: none;
+			transition: opacity 150ms ease;
+		}
+		[data-music].is-playing [data-eq] > span {
+			animation: none;
+			height: 8px;
+		}
+		.press:active {
+			transform: none;
+		}
+	}
+	@media (prefers-reduced-transparency: reduce) {
+		.glass {
+			background: #15172a;
+			backdrop-filter: none;
+		}
+	}
+</style>
+
+<script>
+	declare global {
+		interface Window {
+			YT?: any;
+			onYouTubeIframeAPIReady?: () => void;
+		}
+	}
+
+	const root = document.querySelector<HTMLElement>('[data-music]');
+	const button = root?.querySelector<HTMLButtonElement>('[data-toggle]');
+	const state = root?.querySelector<HTMLElement>('[data-state]');
+	const mount = root?.querySelector<HTMLElement>('[data-player]');
+	const elapsed = root?.querySelector<HTMLElement>('[data-elapsed]');
+	const duration = root?.querySelector<HTMLElement>('[data-duration]');
+	const progress = root?.querySelector<HTMLElement>('[data-progress]');
+
+	// compact pill: minimize button or scrolling down; tap the pill or scroll up to expand
+	const expandBtn = root?.querySelector<HTMLButtonElement>('[data-expand]');
+	const setCompact = (on: boolean) => {
+		if (!root || !expandBtn || root.classList.contains('is-compact') === on) return;
+		root.classList.toggle('is-compact', on);
+		expandBtn.disabled = !on;
+	};
+	root?.querySelector('[data-minimize]')?.addEventListener('click', () => setCompact(true));
+	expandBtn?.addEventListener('click', () => setCompact(false));
+
+	let lastY = window.scrollY;
+	window.addEventListener(
+		'scroll',
+		() => {
+			const y = window.scrollY;
+			if (Math.abs(y - lastY) < 12) return;
+			setCompact(y > lastY && y > 160);
+			lastY = y;
+		},
+		{ passive: true },
+	);
+
+	const fmt = (t: number) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
+
+	if (root && button && state && mount && elapsed && duration && progress) {
+		let player: any = null;
+		let playing = false;
+		let timer = 0;
+
+		const tick = () => {
+			const t = player?.getCurrentTime?.() ?? 0;
+			const d = player?.getDuration?.() ?? 0;
+			elapsed.textContent = fmt(t);
+			if (d > 0) duration.textContent = fmt(d);
+			const ratio = d > 0 ? Math.min(t / d, 1) : 0;
+			progress.style.transform = `scaleX(${ratio})`;
+			root.style.setProperty('--p', String(ratio));
+		};
+
+		const render = (text: string) => {
+			state.textContent = `, ${text}`;
+			root.classList.toggle('is-playing', playing);
+			root.classList.toggle('is-loading', text === 'loading');
+			button.setAttribute('aria-label', playing ? 'Pause' : 'Play');
+			button.setAttribute('aria-pressed', String(playing));
+			window.clearInterval(timer);
+			tick();
+			if (playing) timer = window.setInterval(tick, 250);
+		};
+
+		// Load the YouTube API only after the first click, so nothing is fetched on page load.
+		const loadPlayer = () =>
+			new Promise<void>((resolve, reject) => {
+				window.onYouTubeIframeAPIReady = () => {
+					player = new window.YT.Player(mount, {
+						host: 'https://www.youtube-nocookie.com',
+						videoId: root.dataset.video,
+						playerVars: { autoplay: 1, playsinline: 1, loop: 1, playlist: root.dataset.video },
+						events: {
+							onReady: () => resolve(),
+							onStateChange: (e: any) => {
+								playing = e.data === window.YT.PlayerState.PLAYING;
+								const ended = e.data === window.YT.PlayerState.ENDED;
+								render(playing ? 'playing' : e.data === window.YT.PlayerState.BUFFERING ? 'loading' : ended ? 'stopped' : 'paused');
+							},
+							onError: () => reject(new Error('player error')),
+						},
+					});
+				};
+				const s = document.createElement('script');
+				s.src = 'https://www.youtube.com/iframe_api';
+				s.onerror = () => reject(new Error('blocked'));
+				document.head.append(s);
+			});
+
+		button.addEventListener('click', async () => {
+			if (!player) {
+				button.disabled = true;
+				render('loading');
+				try {
+					await loadPlayer();
+					player.playVideo();
+				} catch {
+					player = null;
+					render('unavailable');
+				} finally {
+					button.disabled = false;
+				}
+				return;
+			}
+			if (playing) player.pauseVideo();
+			else player.playVideo();
+		});
+	}
+</script>

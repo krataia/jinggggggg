@@ -20,6 +20,9 @@ export const site = {
 	contact: [{ label: 'github.com/krataia', href: github }],
 	year: '2026',
 
+	// shown in the footer only when public/hero-bg.* exists
+	heroCredit: 'Background art © HoYoverse. Used for non-commercial coursework; not affiliated with or endorsed by HoYoverse.',
+
 	title: 'krataia — portfolio',
 	description:
 		'I build systems, take them apart, and write down what I find.',
@@ -32,21 +35,14 @@ export const site = {
 };
 
 export const hero = {
-	prompt: 'hello',
+	prompt: 'student · offensive security · ctf',
 	lines: ['I build systems, take them apart,', 'and write down what I find.'],
-	closing: 'Below is the work.',
 	remark: 'Not everything here is visible at first glance.',
 };
 
 export const manifesto = {
-	questions: [
-		'What are we building?',
-		'For whom does it run?',
-		'What remains when the power goes out?',
-	],
-	statement: 'We do not answer. We leave the work.',
-	cipher: 'WKH ZRUN LV WKH RQOB HYLGHQFH',
-	note: 'unsigned / undated',
+	statement: "You don't know what you don't know.",
+	cipher: "BRX GRQ'W NQRZ ZKDW BRX GRQ'W NQRZ", // rot3 of the statement
 };
 
 export const about = {

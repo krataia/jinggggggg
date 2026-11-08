@@ -9,42 +9,89 @@ const { project } = Astro.props;
 const href = project.links.certificate;
 ---
 
-<article
-	class="group relative flex flex-col border border-line bg-panel transition-colors duration-200 focus-within:border-accent hover:border-accent"
+<a
+	class="band group relative block h-[132px] overflow-hidden rounded-[4px] bg-panel no-underline sm:h-[168px]"
+	href={href}
+	target="_blank"
+	rel="noopener"
 >
-	<div
-		class="flex items-center justify-between border-b border-line px-3 py-2 font-pixel text-[9px] uppercase tracking-[0.08em] text-dimtext"
-	>
-		<span>[<span class="text-accent">0x{project.number}</span>]</span>
-		<span>{project.year}</span>
-	</div>
+	<!-- certificate as the band's backdrop, fading into the dark on the left -->
+	<img
+		class="art absolute inset-y-0 right-0 h-full w-[68%] object-cover object-[center_22%] sm:w-[58%]"
+		src={encodeURI(`/ผลงาน/${project.clip.replace(/\.\w+$/, '.jpg')}`)}
+		alt=""
+		loading="lazy"
+		decoding="async"
+	/>
+	<span class="veil absolute inset-0" aria-hidden="true"></span>
+	<span class="frame pointer-events-none absolute inset-0 rounded-[4px]" aria-hidden="true"></span>
 
-	<div class="relative aspect-[3/2] overflow-hidden bg-[#ebebeb] p-3">
-		<img
-			class="h-full w-full object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03] motion-reduce:transition-none"
-			src={encodeURI(`/ผลงาน/${project.clip.replace(/\.\w+$/, '.jpg')}`)}
-			alt={`${project.name} certificate`}
-			loading="lazy"
-			decoding="async"
-		/>
-	</div>
+	<div class="relative flex h-full items-center gap-4 px-5 sm:gap-6 sm:px-8">
+		<span class="hidden shrink-0 flex-col items-center gap-2 sm:flex" aria-hidden="true">
+			<span class="diamond size-2 border border-accent/80 transition-colors duration-200 group-hover:bg-accent"></span>
+			<span class="font-mono text-[11px] tracking-[0.1em] text-accent/80">{project.number}</span>
+		</span>
 
-	<div class="flex flex-1 flex-col gap-3 p-4">
-		<h3 class="text-[15px] font-bold leading-6 text-strong [text-wrap:balance]">
-			<!-- stretched link: the whole card opens the certificate -->
-			<a class="after:absolute after:inset-0 focus-visible:outline-none" href={href} target="_blank" rel="noopener"
-				>{project.name}</a
+		<div class="min-w-0 max-w-[30rem]">
+			<p class="font-mono text-[10px] uppercase tracking-[0.2em] text-dimtext">
+				{project.year} · {project.stack}
+			</p>
+			<h3
+				class="mt-1.5 text-[17px] font-semibold leading-snug text-strong transition-colors duration-200 group-hover:text-accent sm:text-[21px] [text-wrap:balance]"
 			>
-		</h3>
-		<p class="text-sm leading-6 text-muted [text-wrap:pretty]">{project.description}</p>
-
-		<div
-			class="mt-auto flex items-center justify-between gap-3 border-t border-line pt-3 font-pixel text-[9px] uppercase tracking-[0.08em] text-dimtext"
-		>
-			<span>{project.stack} / {project.role}</span>
-			<span class="text-accent transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden="true"
-				>open -&gt;</span
-			>
+				{project.name}
+			</h3>
+			<p class="mt-1.5 line-clamp-1 text-[14px] leading-6 text-muted sm:line-clamp-2">{project.description}</p>
 		</div>
+
+		<span
+			class="ml-auto hidden shrink-0 text-[12px] font-medium uppercase tracking-[0.16em] text-muted transition-[color,transform] duration-200 group-hover:translate-x-1 group-hover:text-accent sm:block"
+			aria-hidden="true">View &rarr;</span
+		>
 	</div>
-</article>
+</a>
+
+<style>
+	.art {
+		mask-image: linear-gradient(to right, transparent, #000 45%);
+		filter: saturate(0.6) brightness(0.55);
+		opacity: 0.85;
+		transition:
+			transform 0.4s var(--ease-out-cubic),
+			filter 0.4s ease-out,
+			opacity 0.4s ease-out;
+	}
+	/* veil lifts on hover so the certificate comes forward */
+	.veil {
+		background: linear-gradient(to right, var(--color-panel) 32%, rgb(42 47 75 / 0.55) 72%, rgb(42 47 75 / 0.2));
+		transition: opacity 0.4s ease-out;
+	}
+	.frame {
+		box-shadow: inset 0 0 0 1px var(--color-line);
+		transition: box-shadow 0.2s ease;
+	}
+	.band:hover .art,
+	.band:focus-visible .art {
+		transform: scale(1.05);
+		filter: none;
+		opacity: 1;
+	}
+	.band:hover .veil,
+	.band:focus-visible .veil {
+		opacity: 0.75;
+	}
+	.band:hover .frame,
+	.band:focus-visible .frame {
+		box-shadow:
+			inset 0 0 0 2px var(--color-accent),
+			0 10px 30px rgb(0 0 0 / 0.35);
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.art {
+			transition: none;
+		}
+		.band:hover .art {
+			transform: none;
+		}
+	}
+</style>

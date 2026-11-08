@@ -1,27 +1,55 @@
 ---
-import { site } from '../data/portfolio';
+import { github, site } from '../data/portfolio';
 ---
 
-<div
-	class="flex items-center justify-between border-b border-line py-1 font-pixel text-[10px] uppercase tracking-[0.1em] text-dimtext"
+<header
+	class="header fixed inset-x-0 top-0 z-[35] bg-chrome backdrop-blur-md transition-colors duration-300"
+	data-header
 >
-	<span>utc <time class="text-muted" data-clock>--:--:--</time></span></div>
+	<div class="mx-auto flex h-16 max-w-[1040px] items-center justify-between gap-6 px-5">
+		<a class="flex items-center gap-2.5 no-underline" href="#top">
+			<span class="diamond size-2 bg-accent" aria-hidden="true"></span>
+			<span class="font-display text-[17px] font-semibold tracking-[0.08em] text-strong">{site.handle}</span>
+		</a>
 
-<header class="mt-4 flex items-center justify-between gap-6 max-[380px]:gap-4">
-	<a
-		class="whitespace-nowrap text-sm leading-5 text-muted no-underline hover:text-strong max-[380px]:text-[13px]"
-		href="#top">{site.handle}</a
-	>
-	<nav
-		class="flex gap-[18px] font-pixel text-[10px] uppercase leading-5 tracking-[0.1em] max-[720px]:gap-3 max-[380px]:text-[9px]"
-		aria-label="Primary"
-	>
-		{
-			site.nav.map((item) => (
-				<a class="text-muted no-underline hover:text-strong" href={item.href}>
-					<span class="text-dim">[</span>{item.label}<span class="text-dim">]</span>
-				</a>
-			))
-		}
-	</nav>
+		<nav class="flex items-center gap-6 max-[480px]:gap-4" aria-label="Primary">
+			{
+				site.nav.map((item) => (
+					<a class="nav-link text-[13px] font-medium uppercase tracking-[0.12em] text-muted no-underline" href={item.href}>
+						{item.label}
+					</a>
+				))
+			}
+			<a
+				class="hidden border border-accent/60 px-3.5 py-1.5 text-[12px] font-medium uppercase leading-none tracking-[0.14em] text-accent no-underline transition-colors duration-200 hover:bg-accent hover:text-[#1b1e33] sm:inline-block"
+				href={github}
+				target="_blank"
+				rel="noopener">GitHub</a
+			>
+		</nav>
+	</div>
 </header>
+
+<style>
+	/* soft gold glow on hover, the way the reference glows its nav */
+	.nav-link {
+		transition:
+			color 0.2s ease,
+			text-shadow 0.2s ease;
+	}
+	.nav-link:hover {
+		color: var(--color-strong);
+		text-shadow: 0 0 12px rgb(245 194 122 / 0.6);
+	}
+	.header.is-scrolled {
+		background: var(--color-chrome-strong);
+		box-shadow: 0 3px 10px rgb(0 0 0 / 0.35);
+	}
+</style>
+
+<script>
+	const header = document.querySelector<HTMLElement>('[data-header]');
+	const sync = () => header?.classList.toggle('is-scrolled', window.scrollY > 80);
+	sync();
+	addEventListener('scroll', sync, { passive: true });
+</script>

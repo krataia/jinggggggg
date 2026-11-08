@@ -1,23 +1,44 @@
 ---
 interface Props {
-	index: string;
 	label: string;
 	tag?: string;
-	rule?: boolean;
 	titleId?: string;
 }
 
-const { index, label, tag, rule = false, titleId } = Astro.props;
+const { label, tag, titleId } = Astro.props;
 ---
 
-<h2
-	class="flex items-baseline gap-2 whitespace-nowrap font-pixel text-[11px] uppercase leading-5 tracking-[0.08em] text-dimtext"
-	id={titleId}
->
-	<span class="sr-only">{label}</span>
-	<span aria-hidden="true" class="text-dim">[<span class="text-strong">{index}</span>]</span>
-	<span aria-hidden="true" class="font-bold text-strong">{label}</span>
-	<span class="ml-2 h-px min-w-0 flex-1 self-center bg-line" aria-hidden="true"></span>
-	{tag && <span aria-hidden="true" class="hidden text-[9px] tracking-[0.06em] text-dim sm:inline">{tag}</span>}
-</h2>
-{rule && <hr class="mt-2 border-0 border-t border-line" />}
+<div class="text-center">
+	<h2
+		class="flex items-center justify-center gap-4 font-display text-[clamp(26px,4.5vw,38px)] font-semibold capitalize leading-tight tracking-[0.06em] text-strong sm:gap-6"
+		id={titleId}
+	>
+		<span class="ornament" aria-hidden="true"></span>
+		{label}
+		<span class="ornament ornament-r" aria-hidden="true"></span>
+	</h2>
+	{tag && <p class="mt-3 font-mono text-[11px] uppercase leading-none tracking-[0.22em] text-accent/70">{tag}</p>}
+</div>
+
+<style>
+	/* thin gold rule that ends in a small diamond next to the title */
+	.ornament {
+		position: relative;
+		width: clamp(40px, 12vw, 140px);
+		height: 1px;
+		background: linear-gradient(to left, color-mix(in srgb, var(--color-accent) 70%, transparent), transparent);
+	}
+	.ornament::after {
+		content: '';
+		position: absolute;
+		right: -3px;
+		top: 50%;
+		width: 7px;
+		height: 7px;
+		border: 1px solid var(--color-accent);
+		transform: translateY(-50%) rotate(45deg);
+	}
+	.ornament-r {
+		transform: scaleX(-1);
+	}
+</style>

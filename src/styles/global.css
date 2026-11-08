@@ -25,22 +25,45 @@
 }
 
 @theme {
+	--font-display: 'Cinzel', 'Times New Roman', serif;
+	--font-sans: 'Noto Sans', 'Noto Sans Thai', system-ui, Helvetica, Arial, sans-serif;
 	--font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas,
 		monospace;
 	--font-pixel: 'Departure Mono', ui-monospace, monospace;
 
-	--color-bg: #080808;
-	--color-panel: #0e0e0e;
-	--color-fg: #f0f0f0;
-	--color-strong: #fff;
-	--color-accent: #fff;
-	--color-muted: #a0a0a0;
-	--color-dim: #666;
-	--color-dimtext: #888;
-	--color-line: #2c2c2c;
-	--color-warn: #b0b0b0;
+	/* night theme: deep indigo starfield, warm gold accent */
+	--color-bg: #252942;
+	--color-panel: rgb(42 47 75 / 0.82);
+	--color-chrome: rgb(14 16 30 / 0.72);
+	--color-chrome-strong: rgb(14 16 30 / 0.9);
+	--color-fg: #e4e6f0;
+	--color-strong: #ffffff;
+	--color-muted: rgb(228 230 240 / 0.68);
+	--color-dimtext: rgb(228 230 240 / 0.52);
+	--color-dim: rgb(228 230 240 / 0.34);
+	--color-line: rgb(255 255 255 / 0.12);
+	--color-accent: #f5c27a;
+	--color-accent-soft: rgb(245 194 122 / 0.08);
+	--color-cta: #e8bd06;
+	--color-warn: #ffb4a2;
+
+	--ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
 
 	--animate-blink: blink 1.1s steps(1, end) infinite;
+	--animate-breath: breath 24s ease-in-out infinite;
+	--animate-cue: cue 1.5s linear infinite;
+}
+
+@keyframes breath {
+	50% {
+		transform: scale(1.03);
+	}
+}
+
+@keyframes cue {
+	50% {
+		opacity: 0;
+	}
 }
 
 @keyframes blink {
@@ -59,24 +82,53 @@
 		background: var(--color-bg);
 		color-scheme: dark;
 		-webkit-text-size-adjust: 100%;
+		overflow-x: clip; /* moving sprites must never cause sideways scroll */
 	}
 
 	body {
 		margin: 0;
-		background-color: var(--color-bg);
 		color: var(--color-fg);
-		font-family: var(--font-mono);
-		font-size: 15px;
-		line-height: 24px;
+		font-family: var(--font-sans);
+		font-size: 16px;
+		line-height: 28px;
+		-webkit-font-smoothing: antialiased;
 	}
 
 	::selection {
-		background: var(--color-strong);
-		color: #000;
+		background: rgb(245 194 122 / 0.3);
+		color: var(--color-strong);
 	}
 
 	:focus-visible {
 		outline: 1px dashed var(--color-accent);
 		outline-offset: 4px;
+	}
+}
+
+@utility diamond {
+	transform: rotate(45deg);
+}
+
+/* gold corner brackets around a block (quotes, about card) */
+@utility corners {
+	&::before,
+	&::after {
+		content: '';
+		position: absolute;
+		width: 18px;
+		height: 18px;
+		border-color: color-mix(in srgb, var(--color-accent) 60%, transparent);
+		border-style: solid;
+		pointer-events: none;
+	}
+	&::before {
+		top: 0;
+		left: 0;
+		border-width: 1px 0 0 1px;
+	}
+	&::after {
+		right: 0;
+		bottom: 0;
+		border-width: 0 1px 1px 0;
 	}
 }

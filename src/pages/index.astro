@@ -1,109 +1,100 @@
 ---
+import { existsSync } from 'node:fs';
 import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
 import SectionHeading from '../components/SectionHeading.astro';
 import Project from '../components/Project.astro';
 import Footer from '../components/Footer.astro';
+import MusicBar from '../components/MusicBar.astro';
+import Starfield from '../components/Starfield.astro';
 import Layout from '../layouts/Layout.astro';
 import { about, manifesto, projects, site } from '../data/portfolio';
 
 const count = String(projects.length).padStart(2, '0');
+
+// Optional hero backdrop: drop public/hero-bg.jpg (or .webp/.png) and it replaces the CSS sky.
+const heroBg = ['jpg', 'webp', 'png']
+	.map((ext) => `hero-bg.${ext}`)
+	.find((name) => existsSync(`${process.cwd()}/public/${name}`));
 ---
 
 <Layout>
-	<div class="pb-20 pt-4">
-		<div class="mx-auto w-[calc(100%-40px)] max-w-[880px]">
-			<Header />
+	<Starfield />
+	{
+		heroBg && (
+			<div class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[120svh] overflow-hidden" aria-hidden="true">
+				<img class="absolute inset-0 h-full w-full object-cover object-center" src={`/${heroBg}`} alt="" decoding="async" fetchpriority="high" />
+				<!-- dark wash so the title stays readable, fading into the night sky -->
+				<span class="absolute inset-0 bg-[linear-gradient(to_bottom,rgb(18_20_36/0.55),rgb(18_20_36/0.35)_40%,rgb(34_38_61/0.85)_80%,var(--color-bg))]" />
+			</div>
+		)
+	}
+	<Header />
 
-			<main id="main">
-				<Hero />
+	<div class="mx-auto w-[calc(100%-40px)] max-w-[1040px] pb-28">
+		<main id="main">
+			<Hero />
 
-				<section class="mt-20 scroll-mt-8" id="manifesto" aria-labelledby="manifesto-heading">
-					<SectionHeading index="00" label="manifesto" tag="[why]" titleId="manifesto-heading" />
+			<section class="scroll-mt-24 pt-16" id="manifesto" aria-labelledby="manifesto-heading">
+				<SectionHeading label="manifesto" tag="why" titleId="manifesto-heading" />
 
-					<div class="mt-4 grid gap-1 text-[15px] leading-6">
-						{
-							manifesto.questions.map((question, i) => (
-								<p class="flex gap-4">
-									<span class="shrink-0 font-pixel text-[10px] uppercase tracking-[0.06em] text-dim">
-										0{i + 1}
-									</span>
-									<span class="text-strong">{question}</span>
-								</p>
-							))
-						}
-					</div>
-
-					<p class="mt-4 max-w-[52ch] text-[15px] leading-6 text-muted">
+				<!-- one line, framed by corner brackets -->
+				<figure class="corners relative mx-auto mt-12 max-w-[760px] px-8 py-12 text-center sm:px-14">
+					<blockquote class="font-display text-[clamp(26px,4.6vw,44px)] font-semibold leading-[1.2] tracking-[0.02em] text-strong [text-wrap:balance]">
 						{manifesto.statement}
-					</p>
+					</blockquote>
+					<figcaption class="mt-6 font-mono text-[11px] uppercase leading-5 tracking-[0.14em] text-dimtext">
+						rot3 · <span class="normal-case tracking-normal text-accent/80">{manifesto.cipher}</span>
+					</figcaption>
+				</figure>
+			</section>
 
-					<div
-						class="mt-5 border-t border-line pt-3 font-pixel text-[9px] uppercase leading-5 tracking-[0.06em] text-dimtext"
-					>
-						<p>
-							cipher / rot3:
-							<span class="normal-case tracking-normal text-muted">{manifesto.cipher}</span>
-						</p>
-						<p class="text-dim">[ {manifesto.note} ]</p>
-					</div>
-				</section>
+			<section class="scroll-mt-24 pt-32" id="work" aria-labelledby="work-heading">
+				<SectionHeading label="work" tag={`${count} certificates`} titleId="work-heading" />
 
-				<section class="mt-20 scroll-mt-8" id="work" aria-labelledby="work-heading">
-					<SectionHeading
-						index="01"
-						label="work"
-						tag={`[${count} files]`}
-						titleId="work-heading"
-						rule
-					/>
+				<div class="mt-12 grid gap-3">
+					{projects.map((project) => <Project project={project} />)}
+				</div>
+			</section>
 
-					<div class="mt-6 grid gap-5 sm:grid-cols-2">
-						{projects.map((project) => <Project project={project} />)}
-					</div>
-				</section>
+			<section class="scroll-mt-24 pt-32" id="about" aria-labelledby="about-heading">
+				<SectionHeading label="about" tag="identity" titleId="about-heading" />
 
-				<section class="mt-20 scroll-mt-8" id="about" aria-labelledby="about-heading">
-					<SectionHeading index="02" label="about" tag="[identity]" titleId="about-heading" />
+				<div class="corners relative mx-auto mt-12 max-w-[680px] bg-panel/60 px-8 py-10 text-center sm:px-14">
+					<p class="text-[18px] leading-9 text-fg [text-wrap:pretty]">{about.body}</p>
+				</div>
+			</section>
 
-					<div class="mt-5">
-						<p class="max-w-[62ch] border-l-2 border-accent pl-4 text-[16px] leading-7 text-fg [text-wrap:pretty]">{about.body}</p>
+			<section class="scroll-mt-24 pt-32" id="contact" aria-labelledby="contact-heading">
+				<SectionHeading label="contact" tag="open channel" titleId="contact-heading" />
 
-					</div>
-				</section>
-
-
-				<section class="mt-20 scroll-mt-8" id="contact" aria-labelledby="contact-heading">
-					<SectionHeading
-						index="03"
-						label="contact"
-						tag="[open channel]"
-						titleId="contact-heading"
-					/>
-
-					<div class="mt-5 grid">
-						{
-							site.contact.map((item, i) => (
-								<a
-									class="group flex items-baseline justify-between gap-4 border-b border-line py-2.5 no-underline"
-									href={item.href}
-								>
-									<span class="flex items-baseline gap-3">
-										<span class="font-pixel text-[10px] tracking-[0.06em] text-dim">[0{i + 1}]</span>
-										<span class="font-bold text-strong underline decoration-line underline-offset-4 visited:text-muted group-hover:text-strong group-hover:decoration-strong">
-											{item.label}
-										</span>
+				<div class="mx-auto mt-12 max-w-[680px] border-y border-line">
+					{
+						site.contact.map((item) => (
+							<a
+								class="group flex items-center justify-between gap-4 px-4 py-5 no-underline transition-colors duration-200 hover:bg-accent-soft"
+								href={item.href}
+								target="_blank"
+								rel="noopener"
+							>
+								<span class="flex items-center gap-4">
+									<span class="diamond size-2 border border-accent/70 transition-colors duration-200 group-hover:bg-accent" aria-hidden="true" />
+									<span class="text-[17px] font-medium text-strong transition-colors duration-200 group-hover:text-accent">
+										{item.label}
 									</span>
-									<span class="text-dim transition-transform duration-200 group-hover:translate-x-1 group-hover:text-accent" aria-hidden="true">-&gt;</span>
-								</a>
-							))
-						}
-					</div>
+								</span>
+								<span class="text-muted transition-[color,transform] duration-200 group-hover:translate-x-1 group-hover:text-accent" aria-hidden="true">
+									&rarr;
+								</span>
+							</a>
+						))
+					}
+				</div>
+			</section>
+		</main>
 
-				</section>
-			</main>
-
-			<Footer />
-		</div>
+		<Footer credit={heroBg ? site.heroCredit : undefined} />
 	</div>
+
+	<MusicBar />
 </Layout>

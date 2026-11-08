@@ -15,34 +15,121 @@ const cicada = `⠀⠀⣀⣤⠤⠶⠶⠶⠶⠶⠶⢶⠶⠶⠦⣤⣄⣀⣀⠀⠀�
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠻⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀`;
 ---
 
-<section class="mt-6 scroll-mt-8" id="top" aria-labelledby="hero-title">
-	<!-- flex centers the art even when it is wider than the column -->
-	<div class="flex justify-center overflow-x-clip py-10">
-		<pre
-			class="w-max shrink-0 whitespace-pre font-pixel text-[clamp(6px,2.1vw,15px)] leading-none text-fg"
-			aria-hidden="true">{cicada}</pre>
+<section
+	class="relative flex min-h-[100svh] scroll-mt-0 flex-col items-center justify-center pb-24 pt-24 text-center"
+	id="top"
+	aria-labelledby="hero-title"
+>
+	<!-- warm halo behind the key art -->
+	<div
+		class="pointer-events-none absolute inset-x-0 top-[12%] mx-auto h-[420px] max-w-[760px] bg-[radial-gradient(closest-side,rgb(245_194_122/0.12),transparent)]"
+		aria-hidden="true"
+	>
 	</div>
 
-	<div class="mt-6">
-		<p class="font-pixel text-[11px] uppercase tracking-[0.1em] text-dimtext">
-			<span class="text-accent">&gt;</span> {hero.prompt}
-		</p>
-		<h1 class="mt-2 text-[clamp(28px,6vw,44px)] font-bold leading-[1.05] tracking-[-0.02em] text-strong" id="hero-title">
-			{site.name}<span
-				class="ml-1 inline-block h-[0.8em] w-[0.45em] translate-y-[0.08em] animate-blink bg-accent motion-reduce:animate-none"
-				aria-hidden="true"></span>
-		</h1>
-		<p class="mt-4 max-w-[52ch] text-[17px] leading-7">
-			{hero.lines[0]}<br />
-			{hero.lines[1]}
-		</p>
-		<p class="mt-3 text-[15px] leading-6 text-muted">
-			{hero.closing}<br />
-			<span class="text-strong">{hero.remark}</span>
-		</p>
-		<p class="mt-6 flex flex-wrap gap-x-5 gap-y-2 font-pixel text-[11px] uppercase tracking-[0.1em]">
-			<a class="text-accent no-underline hover:underline hover:underline-offset-4" href="#work">[ view work ]</a>
-			<a class="text-muted no-underline hover:text-strong" href={github} target="_blank" rel="noopener">[ github ]</a>
-		</p>
+	<!-- flex centers the art even when it is wider than the column -->
+	<div class="relative flex w-full justify-center overflow-x-clip py-6">
+		<div class="animate-breath motion-reduce:animate-none">
+			<!-- two copies of the art, clipped at the body line; each half rotates in 3D like a wing -->
+			<div class="cicada relative shrink-0" aria-hidden="true">
+				<pre class="wing wing-l w-max whitespace-pre font-pixel text-[clamp(6px,2.1vw,15px)] leading-none text-fg">{cicada}</pre>
+				<pre class="wing wing-r absolute inset-0 w-max whitespace-pre font-pixel text-[clamp(6px,2.1vw,15px)] leading-none text-fg">{cicada}</pre>
+			</div>
+		</div>
 	</div>
+
+	<p class="relative mt-8 font-mono text-[11px] uppercase tracking-[0.3em] text-accent/80">{hero.prompt}</p>
+	<h1
+		class="relative mt-3 font-display text-[clamp(34px,7vw,68px)] font-semibold leading-[1.05] tracking-[0.04em] text-strong [text-wrap:balance]"
+		id="hero-title"
+	>
+		{site.name}
+	</h1>
+	<p class="relative mx-auto mt-5 max-w-[46ch] text-[17px] leading-8 text-muted [text-wrap:balance]">
+		{hero.lines.join(' ')}{' '}
+		<span class="text-strong">{hero.remark}</span>
+	</p>
+
+	<div class="relative mt-9 flex flex-wrap items-center justify-center gap-x-7 gap-y-4">
+		<a class="cta relative overflow-hidden bg-cta px-8 py-3 text-[14px] font-semibold uppercase tracking-[0.14em] text-[#2b1d06] no-underline" href="#work">
+			View work
+		</a>
+		<a
+			class="text-[13px] font-medium uppercase tracking-[0.14em] text-muted no-underline transition-colors duration-200 hover:text-accent"
+			href={github}
+			target="_blank"
+			rel="noopener">GitHub &rarr;</a
+		>
+	</div>
+
+	<!-- scroll cue: three staggered blinking chevrons -->
+	<a class="absolute bottom-24 left-1/2 grid -translate-x-1/2 justify-items-center text-accent/80 no-underline sm:bottom-10" href="#manifesto" aria-label="Scroll down">
+		{
+			[0, 0.5, 1].map((d) => (
+				<svg class="-mt-1.5 h-3 w-5 animate-cue motion-reduce:animate-none" style={`animation-delay:${d}s`} viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+					<path d="m2 2 8 8 8-8" />
+				</svg>
+			))
+		}
+	</a>
 </section>
+
+<style>
+	.cta {
+		transition: filter 0.2s ease;
+	}
+	.cta::after {
+		content: '';
+		position: absolute;
+		inset: 0 0 auto;
+		height: 3px;
+		background: #fff3b0;
+		transform: translateX(-101%);
+		transition: transform 0.3s ease-in-out;
+	}
+	.cta:hover {
+		filter: brightness(1.08);
+	}
+	.cta:hover::after {
+		transform: translateX(0);
+	}
+	.cicada {
+		--axis: 48.5%; /* column of the body / tail in the art */
+		perspective: 700px;
+		animation: hover 4s ease-in-out infinite;
+	}
+	.wing {
+		margin: 0;
+		transform-origin: var(--axis) 50%;
+		will-change: transform;
+	}
+	.wing-l {
+		clip-path: inset(0 calc(100% - var(--axis)) 0 0);
+		animation: flap-l 3.2s steps(2, jump-end) infinite;
+	}
+	.wing-r {
+		clip-path: inset(0 0 0 var(--axis));
+		animation: flap-r 3.2s steps(2, jump-end) infinite;
+	}
+	/* two quick beats, then glide */
+	@keyframes flap-l {
+		0%, 36%, 100% { transform: rotateY(0deg); }
+		9%, 27% { transform: rotateY(58deg); }
+		18% { transform: rotateY(4deg); }
+	}
+	@keyframes flap-r {
+		0%, 36%, 100% { transform: rotateY(0deg); }
+		9%, 27% { transform: rotateY(-58deg); }
+		18% { transform: rotateY(-4deg); }
+	}
+	@keyframes hover {
+		0%, 100% { transform: translateY(0); }
+		50% { transform: translateY(-6px); }
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.cicada,
+		.wing {
+			animation: none;
+		}
+	}
+</style>
