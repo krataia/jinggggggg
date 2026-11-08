@@ -4,12 +4,13 @@ import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
 import SectionHeading from '../components/SectionHeading.astro';
 import Project from '../components/Project.astro';
+import Badge from '../components/Badge.astro';
 import Footer from '../components/Footer.astro';
 import MusicBar from '../components/MusicBar.astro';
 import Starfield from '../components/Starfield.astro';
 import Intro from '../components/Intro.astro';
 import Layout from '../layouts/Layout.astro';
-import { about, manifesto, projects, site } from '../data/portfolio';
+import { about, badges, manifesto, projects, site } from '../data/portfolio';
 
 const count = String(projects.length).padStart(2, '0');
 
@@ -56,6 +57,11 @@ const heroBg = ['jpg', 'webp', 'png']
 
 				<div class="mt-12 grid gap-3">
 					{projects.map((project) => <Project project={project} />)}
+				</div>
+
+				<h3 class="mt-16 text-center font-mono text-[11px] uppercase tracking-[0.22em] text-accent/80">Credly badges · Google Cloud</h3>
+				<div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+					{badges.map((b) => <Badge {...b} />)}
 				</div>
 			</section>
 

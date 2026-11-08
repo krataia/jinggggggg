@@ -80,3 +80,14 @@ export const projects: Project[] = [
 	work('06', 'NCSA AI CTF 2026', '2026', 'Competed in the NCSA CTF Thailand Tournament 2026 — AI CTF track, 28 March 2026.', 'ctf / ai security', 'participant', 'f64961133a9bfd4c.pdf'),
 	work('07', 'Thailand Cyber Talent 2025', '2025', 'Certificate of appreciation from the National Cyber Security Agency for competing in Thailand Cyber Talent 2025 as team แมวเย็นแมวเหมียว.', 'ctf', 'team member', '4220dd866d6f9638.png'),
 ];
+
+// Credly badges (all issued by Google Cloud); id = Credly share id, img = badge image id on images.credly.com
+export const badges = [
+	{ id: '7ec8ac57-9f00-4ce0-9664-b883dcb2f18b', img: '4dda8ae4-99ee-476c-bca3-6f0adbab42fe', name: 'Google Cloud Computing Foundations Certificate' },
+	{ id: '932245a1-2e01-4b9b-926c-8e0465f87242', img: '6160e2c1-4a95-4f47-8c5b-f2dde7bb6a67', name: 'Engineer Data for Predictive Modeling with BigQuery ML' },
+	{ id: '538abefb-8da3-46d4-834b-968965457a72', img: 'e1131ae3-4a52-4af1-9801-b7853767cf79', name: 'Build a Secure Google Cloud Network' },
+	{ id: 'b9a538d6-8604-4e15-ad29-23f29cc80386', img: 'f0388a0c-130f-47cd-8750-d6357e907e58', name: 'Deploy Kubernetes Applications on Google Cloud' },
+	{ id: '45eb2470-177d-4fc2-86ae-bb814ae6f8f9', img: '68756311-9319-4eeb-a2b7-76defc8dd8a2', name: 'Prepare Data for ML APIs on Google Cloud' },
+	{ id: '45cf663b-652e-4364-aa01-b17a67c1df86', img: '122ab775-7bbd-4167-a3b5-5dd92b4e02f6', name: 'Mitigate Threats and Vulnerabilities with Security Command Center' },
+	{ id: '953047f4-9085-4018-af47-a9a58a737693', img: '7623fefd-ebbd-4d8f-a053-f41dca852d9e', name: 'The Basics of Google Cloud Compute' },
+];

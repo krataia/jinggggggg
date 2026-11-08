@@ -1,0 +1,83 @@
+---
+interface Props {
+	id: string;
+	img: string;
+	name: string;
+}
+
+const { id, img, name } = Astro.props;
+---
+
+<a
+	class="badge group relative flex flex-col items-center overflow-hidden rounded-[4px] bg-panel px-4 pb-4 pt-6 text-center no-underline"
+	href={`https://www.credly.com/badges/${id}/public_url`}
+	target="_blank"
+	rel="noopener"
+>
+	<span class="relative grid size-[112px] place-items-center">
+		<span class="badge-halo absolute inset-0 rounded-full" aria-hidden="true"></span>
+		<img
+			class="badge-img relative size-[104px] object-contain"
+			src={`https://images.credly.com/size/220x220/images/${img}/image.png`}
+			alt={`${name} badge`}
+			width="104"
+			height="104"
+			loading="lazy"
+			decoding="async"
+		/>
+	</span>
+	<p class="mt-4 line-clamp-2 min-h-[2.6em] text-[13.5px] font-semibold leading-snug text-strong transition-colors duration-200 group-hover:text-accent [text-wrap:balance]">
+		{name}
+	</p>
+	<p class="mt-2 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-dimtext">
+		<span class="diamond size-1.5 bg-accent/70" aria-hidden="true"></span>
+		Verify on Credly
+	</p>
+</a>
+
+<style>
+	.badge {
+		box-shadow: inset 0 0 0 1px var(--color-line);
+		transition:
+			transform 0.35s var(--ease-out-cubic),
+			box-shadow 0.35s ease;
+	}
+	.badge:hover,
+	.badge:focus-visible {
+		transform: translateY(-4px);
+		box-shadow:
+			inset 0 0 0 1px rgb(245 194 122 / 0.6),
+			0 14px 30px rgb(0 0 0 / 0.35);
+	}
+	/* warm light behind the badge, brighter on hover */
+	.badge-halo {
+		background: radial-gradient(closest-side, rgb(245 194 122 / 0.28), transparent);
+		transform: scale(1.15);
+		transition:
+			transform 0.4s ease,
+			opacity 0.4s ease;
+		opacity: 0.6;
+	}
+	.badge:hover .badge-halo {
+		opacity: 1;
+		transform: scale(1.3);
+	}
+	.badge-img {
+		filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.4));
+		transition: transform 0.5s var(--ease-out-cubic);
+	}
+	.badge:hover .badge-img,
+	.badge:focus-visible .badge-img {
+		transform: translateY(-3px) scale(1.05);
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.badge,
+		.badge-img,
+		.badge-halo {
+			transition: none;
+		}
+		.badge:hover .badge-img {
+			transform: none;
+		}
+	}
+</style>
