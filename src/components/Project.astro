@@ -1,0 +1,50 @@
+---
+import type { Project } from '../data/portfolio';
+
+interface Props {
+	project: Project;
+}
+
+const { project } = Astro.props;
+const href = project.links.certificate;
+---
+
+<article
+	class="group relative flex flex-col border border-line bg-panel transition-colors duration-200 focus-within:border-accent hover:border-accent"
+>
+	<div
+		class="flex items-center justify-between border-b border-line px-3 py-2 font-pixel text-[9px] uppercase tracking-[0.08em] text-dimtext"
+	>
+		<span>[<span class="text-accent">0x{project.number}</span>]</span>
+		<span>{project.year}</span>
+	</div>
+
+	<div class="relative aspect-[3/2] overflow-hidden bg-[#ebebeb] p-3">
+		<img
+			class="h-full w-full object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03] motion-reduce:transition-none"
+			src={encodeURI(`/ผลงาน/${project.clip.replace(/\.\w+$/, '.jpg')}`)}
+			alt={`${project.name} certificate`}
+			loading="lazy"
+			decoding="async"
+		/>
+	</div>
+
+	<div class="flex flex-1 flex-col gap-3 p-4">
+		<h3 class="text-[15px] font-bold leading-6 text-strong [text-wrap:balance]">
+			<!-- stretched link: the whole card opens the certificate -->
+			<a class="after:absolute after:inset-0 focus-visible:outline-none" href={href} target="_blank" rel="noopener"
+				>{project.name}</a
+			>
+		</h3>
+		<p class="text-sm leading-6 text-muted [text-wrap:pretty]">{project.description}</p>
+
+		<div
+			class="mt-auto flex items-center justify-between gap-3 border-t border-line pt-3 font-pixel text-[9px] uppercase tracking-[0.08em] text-dimtext"
+		>
+			<span>{project.stack} / {project.role}</span>
+			<span class="text-accent transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden="true"
+				>open -&gt;</span
+			>
+		</div>
+	</div>
+</article>

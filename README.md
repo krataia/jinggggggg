@@ -1,46 +1,42 @@
-# Astro Starter Kit: Basics
+# Portfolio
 
-```sh
-bun create astro@latest -- --template basics
-```
+A single-page portfolio in a terminal-inspired style: JetBrains Mono for
+readable copy, Departure Mono for the ASCII artwork, and a cicada mark drawn in
+text. Built with Astro and Tailwind CSS v4 — no client framework, no images.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Editing content
 
-## 🚀 Project Structure
+All copy lives in `src/data/portfolio.ts`:
 
-Inside of your Astro project, you'll see the following folders and files:
+- `site` — handle, name, nav, contact links, PGP fingerprint, footer year
+- `hero` — the opening lines
+- `about` — the paragraph and the three role lines
+- `projects` — one entry per project; set `open: true` on the project that
+  should start expanded
+- `site.key` — the answer to the access-key field. Only its SHA-256 hash is
+  shipped to the browser
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
-```
+Anything in square brackets is a placeholder waiting to be replaced. Contact
+links default to `#`; point them at real URLs.
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+The cicada artwork lives in `src/components/Hero.astro`; the other ASCII frames
+are in `Showreel.astro`, `Project.astro`, `KeySection.astro`, and
+`Footer.astro`.
 
-## 🧞 Commands
+## Commands
 
-All commands are run from the root of the project, from a terminal:
+| Command       | Action                             |
+| :------------ | :--------------------------------- |
+| `bun install` | Install dependencies               |
+| `bun dev`     | Dev server at `localhost:4321`     |
+| `bun build`   | Build the static site to `./dist/` |
+| `bun preview` | Preview the build locally          |
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `bun install`             | Installs dependencies                            |
-| `bun dev`             | Starts local dev server at `localhost:4321`      |
-| `bun build`           | Build your production site to `./dist/`          |
-| `bun preview`         | Preview your build locally, before deploying     |
-| `bun astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `bun astro -- --help` | Get help using the Astro CLI                     |
+## Notes
 
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- Styling is Tailwind utilities in the components. `src/styles/global.css` only
+  holds the font faces, theme tokens, and a small base layer.
+- The access-key check runs in the browser with `crypto.subtle`, so it needs
+  HTTPS (or localhost). It is an Easter egg, not access control.
+- Fonts are self-hosted under the SIL Open Font License. Licenses are in
+  `public/fonts/`.

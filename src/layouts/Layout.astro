@@ -1,23 +1,54 @@
+---
+import '../styles/global.css';
+import { site } from '../data/portfolio';
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const { title = site.title, description = site.description } = Astro.props;
+---
+
 <!doctype html>
-<html lang="en">
+<html lang="en" class="scroll-smooth motion-reduce:scroll-auto">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:type" content="website" />
+		<meta name="theme-color" content="#000000" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
 	</head>
-	<body>
+	<body class="bg-bg font-mono text-[15px] leading-6 text-fg">
+		<a
+			class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:bg-bg focus:px-3 focus:py-2 focus:text-fg"
+			href="#main">skip to content</a
+		>
 		<slot />
+		<!-- a2VlcCBsb29raW5n -->
 	</body>
 </html>
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
+<script>
+	const clock = new Intl.DateTimeFormat('en-GB', {
+		timeZone: 'UTC',
+		hour: '2-digit',
+		minute: '2-digit',
+		second: '2-digit',
+		hour12: false,
+	});
+
+	const tick = () => {
+		const now = clock.format(new Date());
+		document.querySelectorAll<HTMLElement>('[data-clock]').forEach((el) => {
+			el.textContent = now;
+		});
+	};
+
+	tick();
+	window.setInterval(tick, 1000);
+</script>

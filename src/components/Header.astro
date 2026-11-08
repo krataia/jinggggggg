@@ -1,0 +1,27 @@
+---
+import { site } from '../data/portfolio';
+---
+
+<div
+	class="flex items-center justify-between border-b border-line py-1 font-pixel text-[10px] uppercase tracking-[0.1em] text-dimtext"
+>
+	<span>utc <time class="text-muted" data-clock>--:--:--</time></span></div>
+
+<header class="mt-4 flex items-center justify-between gap-6 max-[380px]:gap-4">
+	<a
+		class="whitespace-nowrap text-sm leading-5 text-muted no-underline hover:text-strong max-[380px]:text-[13px]"
+		href="#top">{site.handle}</a
+	>
+	<nav
+		class="flex gap-[18px] font-pixel text-[10px] uppercase leading-5 tracking-[0.1em] max-[720px]:gap-3 max-[380px]:text-[9px]"
+		aria-label="Primary"
+	>
+		{
+			site.nav.map((item) => (
+				<a class="text-muted no-underline hover:text-strong" href={item.href}>
+					<span class="text-dim">[</span>{item.label}<span class="text-dim">]</span>
+				</a>
+			))
+		}
+	</nav>
+</header>

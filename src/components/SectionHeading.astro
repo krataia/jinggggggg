@@ -1,0 +1,23 @@
+---
+interface Props {
+	index: string;
+	label: string;
+	tag?: string;
+	rule?: boolean;
+	titleId?: string;
+}
+
+const { index, label, tag, rule = false, titleId } = Astro.props;
+---
+
+<h2
+	class="flex items-baseline gap-2 whitespace-nowrap font-pixel text-[11px] uppercase leading-5 tracking-[0.08em] text-dimtext"
+	id={titleId}
+>
+	<span class="sr-only">{label}</span>
+	<span aria-hidden="true" class="text-dim">[<span class="text-strong">{index}</span>]</span>
+	<span aria-hidden="true" class="font-bold text-strong">{label}</span>
+	<span class="ml-2 h-px min-w-0 flex-1 self-center bg-line" aria-hidden="true"></span>
+	{tag && <span aria-hidden="true" class="hidden text-[9px] tracking-[0.06em] text-dim sm:inline">{tag}</span>}
+</h2>
+{rule && <hr class="mt-2 border-0 border-t border-line" />}
